@@ -1,6 +1,13 @@
 import { useState, useRef, useEffect } from 'react'
 import './App.css'
 
+const DIV_SYM = "\u00F7";
+const MUL_SYM = "\u2A2F";
+const SUB_SYM = "\u2212";
+const ADD_SYM = "+";
+const DOT_SYM = "\u2022";
+const SQRT_SYM = "\u221A";
+const PCT_SYM = "\u0025";
 
 const DisplayCell = ({value, dot}:{value: string, dot:boolean}) => {
 
@@ -437,10 +444,10 @@ const CircleButton = ({text, onClick, fontSize, color}: CircleButtonProps) => {
 
 function CircleButtonGrid({handleBtn}:{handleBtn:(text:string)=>void}) {
   const BTN_TEXT = [
-    "\u221A", "7", "8", "9", "\u00F7",
-    "\u0025", "4", "5", "6", "\u2A2F",
-    "CE", "1", "2", "3", "\u2212",
-    "C", "0", "\u2022", "=", "+",
+    SQRT_SYM, "7", "8", "9", DIV_SYM,
+    PCT_SYM, "4", "5", "6", MUL_SYM,
+    "CE", "1", "2", "3", SUB_SYM,
+    "C", "0", DOT_SYM, "=", ADD_SYM,
   ];
 
   return (
@@ -479,13 +486,6 @@ function App() {
   const ASPECT_RATIO = 0.582;
 
   const MAX_DISPLAY = 9;
-  const DIV_SYM = "\u2797";
-  const MUL_SYM = "\u2A2F";
-  const SUB_SYM = "\u2796";
-  const ADD_SYM = "+";
-  const DOT_SYM = "\u2022";
-  const SQRT_SYM = "\u221A";
-  const PCT_SYM = "\u0025";
 
   const updateHolderDims = () => {
     let height = window.innerHeight - 20;
