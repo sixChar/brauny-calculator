@@ -437,9 +437,9 @@ const CircleButton = ({text, onClick, fontSize, color}: CircleButtonProps) => {
 
 function CircleButtonGrid({handleBtn}:{handleBtn:(text:string)=>void}) {
   const BTN_TEXT = [
-    "\u221A", "7", "8", "9", "\u2797",
+    "\u221A", "7", "8", "9", "\u00F7",
     "\u0025", "4", "5", "6", "\u2A2F",
-    "CE", "1", "2", "3", "\u2796",
+    "CE", "1", "2", "3", "\u2212",
     "C", "0", "\u2022", "=", "+",
   ];
 
