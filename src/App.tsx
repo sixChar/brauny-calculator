@@ -2,38 +2,40 @@ import { useState, useRef, useEffect } from 'react'
 import './App.css'
 
 
-const DisplayCell = ({value, dot}:{value:string, dot:boolean}) => {
+const DisplayCell = ({value, dot}:{value: string, dot:boolean}) => {
 
     const ON_COLOR = "#53bfb0";
     const OFF_COLOR = "#27333b"; //"#30404a";
 
-    const topCell = value == 0 || 
-                    (value >= 2 && value <= 3) || 
-                    (value >= 5 && value <= 9) ||
+    let numValue = Number(value);
+
+    const topCell = numValue == 0 || 
+                    (numValue >= 2 && numValue <= 3) || 
+                    (numValue >= 5 && numValue <= 9) ||
                     value === "U" || 
                     value === "O" ||
                     value === "C";
-    const midCell = (value >= 2 && value <= 6) ||
-                    (value >= 8) ||
+    const midCell = (numValue >= 2 && numValue <= 6) ||
+                    (numValue >= 8) ||
                     (value == "-") ||
                     value === "O" || value === "o" ||
                     value === "C" || value === "c";
-    const botCell = (value != 1 && 
-                    value != 4 && 
-                    value != 7 && 
-                    value <= 9) ||
+    const botCell = (numValue != 1 && 
+                    numValue != 4 && 
+                    numValue != 7 && 
+                    numValue <= 9) ||
                     value == "U" || value == "u" ||
                     value === "O" || value === "o" ||
                     value === "C" || value === "c";
-    const leftTopCell = value == 0 || 
-                        (value >= 4 && value != 7);
-    const leftBotCell = (value % 2 == 0) && value != 4 ||
+    const leftTopCell = numValue == 0 || 
+                        (numValue >= 4 && numValue != 7);
+    const leftBotCell = (numValue % 2 == 0) && numValue != 4 ||
                         value == "U" || value == "u" ||
                         value === "O" || value === "o" ||
                         value === "C" || value === "c";
-    const rightTopCell = value <= 4 ||
-                         value >= 7;
-    const rightBotCell = value != 2 && value <= 9 ||
+    const rightTopCell = numValue <= 4 ||
+                         numValue >= 7;
+    const rightBotCell = numValue != 2 && numValue <= 9 ||
                         value == "U" || value == "u" ||
                         value === "O" || value === "o";
 
@@ -88,7 +90,6 @@ const ClockDisplay = ({displayText, displayMode, memory, overflow}:ClockDisplayP
     let toDisplay = Array(maxDisplay);
 
     let text = displayText;
-    let num = Number(text);
 
     switch (displayMode) {
       case 1:
@@ -183,7 +184,7 @@ interface LabeledPillButtonProps {
     btnId: string;
     btnFunc(): any;
     label: string;
-    marginLeft: string;
+    marginLeft?: string;
 }
 const LabeledPillButton = ({btnId, btnFunc, label, marginLeft}:LabeledPillButtonProps) => {
   const [pressed, setPressed] = useState(false);
@@ -257,14 +258,15 @@ const LabeledPillButton = ({btnId, btnFunc, label, marginLeft}:LabeledPillButton
 }
 
 
-const SelectSwitch = ({state, setState}:{state:int, setState:(value: number)=>void}) => {
+const SelectSwitch = ({state, setState}:{state:number, setState:(value: number)=>void}) => {
 
-  const trackRef = useRef();
+  const trackRef = useRef<HTMLDivElement | null>(null);
 
-  const handleDrag = (event) => {
+  const handleDrag = (event:any) => {
+    event.preventDefault();
     const bounds = trackRef.current?.getBoundingClientRect();
-    const low = bounds.x;
-    const width = bounds.width;
+    const low = bounds ? bounds.x : 0;
+    const width = bounds ? bounds.width : 0;
 
 
     let newState;
@@ -278,7 +280,7 @@ const SelectSwitch = ({state, setState}:{state:int, setState:(value: number)=>vo
     setState(newState);
   }
 
-  const marginLeft = ((state == 0) && "-5%") || ((state == 1) && "27%") || ((state == 2) && "60%");
+  const marginLeft = ((state == 0) && "-5%") || ((state == 1) && "27%") || "60%";
   return (
     <div 
       onClick={()=>{setState((state + 1) % 3)}}
@@ -443,19 +445,14 @@ function CircleButtonGrid({handleBtn}:{handleBtn:(text:string)=>void}) {
 
   return (
     <>
-      {Array.from(Array(20), (x,i)=>{
+      {Array.from(BTN_TEXT, (text,i)=>{
         let color = 0;
         if (i % 5 == 0 || i % 5 == 4 || i == 17) {
             color = 1;
         } else if (i == 18) {
             color = 2;
         }
-        let isPressed = false;
-        if (i == 10) {
-            isPressed = true;
-        }
 
-        const text = BTN_TEXT[i]
         return <CircleButton 
                     key={i}
                     text={text} 
@@ -477,7 +474,7 @@ function App() {
   const [memory, setMemory] = useState<string>("0");
   const [overflow, setOverflow] = useState<boolean>(false);
 
-  const [holderDims, setHolderDims] = useState<number>([0,0]);
+  const [holderDims, setHolderDims] = useState<number[]>([0,0]);
 
   const ASPECT_RATIO = 0.582;
 
@@ -510,7 +507,7 @@ function App() {
   }, []);
 
 
-  const handleOp = (op:string) => {
+  const handleOp = () => {
     switch(hidState.current.currOp) {
       case DIV_SYM:
         hidState.current.buffer = String(Number(hidState.current.buffer) / Number(display));
@@ -523,17 +520,18 @@ function App() {
         break;
       case ADD_SYM:
         hidState.current.buffer = String(Number(hidState.current.buffer) + Number(display));
+        break;
       default:
     }
-    if (Math.abs(hidState.current.buffer) > 10 ** 8) {
+    if (Math.abs(Number(hidState.current.buffer)) > 10 ** 8) {
       setOverflow(true);
       hidState.current.buffer = String(Number(hidState.current.buffer) / (10**8));
-    } else if (overflow && hidState.current.buffer < 1) {
+    } else if (overflow && Number(hidState.current.buffer) < 1) {
       hidState.current.buffer = String(Number(hidState.current.buffer) * (10 ** 8));
       setOverflow(false);
     }
     let toKeep = MAX_DISPLAY+1;
-    toKeep += (hidState.current.buffer.indexOf('.') !== -1);
+    toKeep += Number(hidState.current.buffer.indexOf('.') !== -1);
     hidState.current.buffer = String(Number(hidState.current.buffer.slice(0, toKeep)));
   }
 
@@ -585,14 +583,14 @@ function App() {
             hidState.current.currOp = btnText;
             setDisplay("");
         } else {
-            handleOp(hidState.current.currOp)
+            handleOp();
             hidState.current.currOp = btnText;
             setDisplay(hidState.current.buffer);
         }
         hidState.current.shouldClear = true;
         break;
       case "=":
-        handleOp(hidState.current.currOp);
+        handleOp();
         hidState.current.currOp = "";
         setDisplay(hidState.current.buffer);
         hidState.current.shouldClear = true;
@@ -609,12 +607,12 @@ function App() {
       case SQRT_SYM:
         const res = Math.sqrt(Number(display));
         if (res !== undefined && !isNaN(res)) {
-          setDisplay((prevDisplay) => (String(res)));
+          setDisplay(String(res));
           hidState.current.shouldClear = true;
         }
         break;
       case PCT_SYM:
-        setDisplay((prevDisplay) => (String(Number(display)/100.)));
+        setDisplay(String(Number(display)/100.));
         break;
       default:
         console.log("NOT IMPLEMENTED!")
