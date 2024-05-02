@@ -1,5 +1,5 @@
 # "Braun"y Calculator
-A recreation of an early Braun calculator (ET-22) written with typescript, react, and CSS (no images; all styling is pure css)
+A recreation of an early Braun calculator (ET-22) written with Typescript, React, and CSS (no images; all styling is pure css)
 
 
 
